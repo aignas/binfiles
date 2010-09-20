@@ -1,0 +1,30 @@
+# gns prompt
+prompt_walters_help () {
+  cat <<'EOF'
+This prompt is color-scheme-able.  You can invoke it thus:
+
+  prompt walters [<color1>]
+
+where the color is for the right-hand prompt.
+
+it was modified to suite my needs.
+Added jobs count from pws prompt
+and the clock
+
+Modified walters prompt
+EOF
+}
+
+prompt_walters_setup () {
+
+if [[ "$TERM" != "dumb" ]]; then
+    export PROMPT='%B%(?..[%?] )%b%D{%H:%M} %F{red}%B%(1j.[%j] .)%b%F{white}%n@%U%m%u> '
+    export RPROMPT="%F{${1:-green}}%~%f"
+else
+    export PROMPT="%D{%H:%M}-%(?..[%?] )%n@%m:%~> "
+fi
+
+  prompt_opts=(cr percent)
+}
+
+prompt_walters_setup "$@"

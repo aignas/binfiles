@@ -1,0 +1,45 @@
+#!/bin/bash 
+#############
+# @author: Hardik
+# @purpose: Cycle through the keyboard layouts sotored in
+# ~/.xkbSwitch/xkb_layouts file
+# This script is called on Ctrl + Alt + k key-combination in fluxbox
+################
+
+LAYOUTS_FILE=~/.config/xkbSwitch/xkb_layouts
+INDEX_FILE=~/.config/xkbSwitch/index
+XMODMAP_FILE=~/.Xmodmap
+
+if [ ! -r $LAYOUTS_FILE ]; then
+  echo "File $LAYOUTS_FILE does not exist"
+  exit 1
+fi
+
+# if the script is running the frist time
+if [ ! -r $INDEX_FILE ]; then
+  echo '0' > $INDEX_FILE
+fi
+
+read line < $INDEX_FILE
+
+let "INDEX=$line+1"
+          
+INNER_INDEX=0
+
+
+while read line
+do
+  LAYOUTS[$INNER_INDEX]=$line
+  let "INNER_INDEX +=1"
+done <$LAYOUTS_FILE
+
+if [ $INDEX -ge $INNER_INDEX ]; then
+  let "INDEX -=$INNER_INDEX"
+fi
+setxkbmap ${LAYOUTS[$INDEX]} & 
+xmodmap ${XMODMAP_FILE} &
+if [ $? = "0" ]; then
+  echo $INDEX >$INDEX_FILE
+fi 
+
+notify-send "Current Keyboard Layout: ${LAYOUTS[$INDEX]}" &

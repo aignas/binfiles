@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# Bash script for setting the battery thresholds on ThinkPads using the tp_smapi interface.
+# Written by Ignas Anikevicius (20/03/2010)
+
+#HELP TEXT
+if [ "x$1" == "x--help" -o "x$1" == "x-h" ]
+then
+  echo -e "
+  WARNING!!! This script needs to be run as root in order to have effect!!!
+
+  Possible options are:
+    set_bat_thresh [BAT_N] [[LOWER] [UPPER]][--reset][-r] 
+  
+    [BAT_N] number of the battery (can be either 0 or 1).
+
+    LOWER - lower threshold.
+    UPPER - upper threshold.
+    [--reset] or [-r] sets the default thresholds.
+
+  execute to see this text:
+    set_bat_thresh [--help][-h]
+"
+  exit 0
+fi
+
+if [ ! -d /sys/devices/platform/smapi ]; then
+  echo -e "\nSMAPI interface is NOT installed.\nPlease load the module.\n"
+  exit 0; fi
+
+#SETTING THRESHOLD VALUES
+if [ "x$2" == "x--reset" -o "x$2" == "x-r" ]
+then
+  LOWER=96
+  UPPER=100
+else
+  LOWER=$2
+  UPPER=$3
+fi
+
+#VALUE TESTING
+if [ ${LOWER} -ge ${UPPER} ]; then
+  echo -e "\n  Please provide proper thresholds!!!  \n"
+  exit 0
+fi
+
+#BATTERY NUMBER
+BAT_N=$1
+LOWER_F="/sys/devices/platform/smapi/BAT${BAT_N}/start_charge_thresh"
+UPPER_F="/sys/devices/platform/smapi/BAT${BAT_N}/stop_charge_thresh"
+
+#SETTING THE THRESHOLDS
+echo ${LOWER} > ${LOWER_F}
+echo ${UPPER} > ${UPPER_F}
+
+#ECHOING THE STUFF
+echo -e "\nSetting battery thresholds for Battery ${BAT_N}:
+  Threshold for charging to start: ${LOWER} 
+  Threshold for charging to stop: ${UPPER} 
+"
+exit 0;

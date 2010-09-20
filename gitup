@@ -11,12 +11,17 @@
 
 update () {
   file="$@"
-  base_file=~/bin/$file
+  base_file=~/.$file
+
+  # Fallback: no leading dot
+  if [ ! -e "$base_file" ]; then
+    base_file=~/$file
+  fi
 
   if [ -f "$base_file" ]; then
     if diff "$base_file" "$file" > /dev/null; then
       # File did not change
-      echo "$file up to date"
+      #echo "Skipped $file"
       return
     else
       # Normal files are just copied
@@ -28,7 +33,7 @@ update () {
 
   if [ -d "$base_file" ]; then
     # Dirs are handled recursively
-    echo "Recursively updating $file..."
+    #echo "Recursively updating $file..."
     dirupdate $file/
     return
   fi
@@ -41,12 +46,6 @@ dirupdate () {
   for file in ${@}*; do
     case $file in
       gitup)
-        continue
-        ;;
-      README)
-        continue
-        ;;
-      Rakefile)
         continue
         ;;
     esac
