@@ -39,7 +39,7 @@ else
 fi
 
 #VALUE TESTING
-if [ ${LOWER} -ge ${UPPER} ]; then
+if [[ ${LOWER} -ge ${UPPER} ]]; then
   echo -e "\n  Please provide proper thresholds!!!  \n"
   exit 0
 fi

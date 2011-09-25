@@ -1,0 +1,21 @@
+#!/bin/sh 
+
+startup()
+{
+  if ps -A | grep -q $1; then
+    echo "$1 is already running"
+  else
+    `$@` &
+    notify-send "$1"
+  fi
+}
+
+# Keyboard
+setxkbmap gb -option caps:escape &
+xset +dpms 
+#xmodmap ~/.Xmodmap 
+
+# Start misc stuff
+startup "xbindkeys"
+startup "wpa_gui" "-t"
+startup "thunderbird-bin"
