@@ -1,0 +1,14 @@
+#!/bin/bash
+
+case "$1" in
+  up)
+    pacmd dump|awk --non-decimal-data '$1~/set-sink-volume/{system ("pacmd "$1" "$2" "$3+1000)}' > /dev/null
+    ;;
+  down)
+    pacmd dump|awk --non-decimal-data '$1~/set-sink-volume/{system ("pacmd "$1" "$2" "$3-1000)}' > /dev/null
+    ;;
+  mute)
+    pacmd dump|awk --non-decimal-data '$1~/set-sink-mute/{system ("pacmd "$1" "$2" "($3=="yes"?"no":"yes"))}' > /dev/null
+    ;;
+esac
+

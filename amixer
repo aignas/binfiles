@@ -1,0 +1,44 @@
+#!/bin/bash
+
+STATE_C='#dcdcdc'
+LEVEL=""
+NOTIFY=""
+
+if [[ -z $1 ]]; then
+  echo "Volume increaments are not provided"
+  exit 1
+fi
+
+toggle() {
+    amixer -q set Master $1
+    NOTIFY="Sound $1"
+    if [[ $1 == "on" ]]; then
+        STATE_C='#dcdcdc'
+    else
+        STATE_C='#1F1F1F'
+    fi
+}
+
+change_volume(){
+    amixer -q set Master "$1"
+    LEVEL=`amixer sget Master | pcregrep 'Left:.+[0-9]+%' | pcregrep -o '[0-9]+%' | pcregrep -o '[0-9]+'`
+    NOTIFY="Volume lvl: $LEVEL"
+}
+
+if amixer sget Master | grep -q off; then
+#    if echo "$1" | grep -q "+"; then
+        toggle on
+#    else
+#        toggle off
+#    fi
+elif [[ "$1" = "toggle" ]]; then
+    toggle off
+elif [[ "$1" = "get_levels" ]]; then
+    change_volume 0%+
+else
+    change_volume $1
+fi
+
+# Awesome stuff
+echo "mixer.mywidget:set_value($LEVEL/100)" | awesome-client
+echo "mixer.mywidget:set_color(\"$STATE_C\")" | awesome-client
