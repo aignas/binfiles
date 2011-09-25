@@ -1,0 +1,96 @@
+#!/bin/bash
+
+DEFAULT_VALUES='41 31 23 17'
+#CUSTOM_VALUES='35 25 17 11'
+CUSTOM_VALUES='32 23 14 9'
+
+#get current values of vids
+PREV_VAL_0=`cat /sys/devices/system/cpu/cpu0/cpufreq/phc_vids`
+PREV_VAL_1=`cat /sys/devices/system/cpu/cpu1/cpufreq/phc_vids`
+
+# function definitions
+fun_help () {
+    cat << EOF
+Script for changing phc_vids for Thinkpad x200s.
+(DEFAULT and CUSTOM VID_VALUES might not work on other computers)
+
+Usage:
+    ./phc_set [-h --help]
+    ./phc_set VID_VALUES
+    ./phc_set
+
+VID_VALUES should look as follows:
+    '$DEFAULT_VALUES'
+
+If no VID_VALUES are specified, then you will
+be prompted to choose one or to use default ones.
+
+!!! NOTICE !!!
+---------------------------------------------------------------
+This script was written by Ignas Anikevicius (gns_ank).
+It is provided as is, without any warranties, and if you are not 
+careful it might it your babies or burn your house and I do
+not take any responsability for this.
+
+That said, permission is granted to execute, modify and 
+distribute the script as long as authors of the script are 
+mentioned somewhere in the derivatives of the script.
+----------------------------------------------------------------
+EOF
+    return 0
+}
+
+fun_getval () {
+    cat << EOF
+You did not define the VID values.
+Default or custom values will be used.
+Default values are: 
+    $DEFAULT_VALUES
+Custom values are: 
+    $CUSTOM_VALUES
+Current values are: 
+    $PREV_VAL_0
+    $PREV_VAL_1
+Are you sure you want to continue?
+EOF
+    read -s -n1 -p "Press Y/N" ANSWER
+    echo -e "\n"
+    if [[ "$ANSWER" == "y" || "$ANSWER" == "Y" ]]; then
+        SET_VALUES=$CUSTOM_VALUES
+    elif [[ "$ANSWER" == "n" || "$ANSWER" == "N" ]]; then
+        return 0
+    fi
+}
+
+main () {
+    if [[ -z $1 ]]; then
+        fun_getval $1
+    elif [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        fun_help
+        exit 0
+    else
+        SET_VALUES=$1
+    fi
+
+    #set the values
+    echo "$SET_VALUES" > /sys/devices/system/cpu/cpu0/cpufreq/phc_vids
+    echo "$SET_VALUES" > /sys/devices/system/cpu/cpu1/cpufreq/phc_vids
+
+    #get current values of vids
+    CUR_VAL_0=`cat /sys/devices/system/cpu/cpu0/cpufreq/phc_vids`
+    CUR_VAL_1=`cat /sys/devices/system/cpu/cpu1/cpufreq/phc_vids`
+
+    #output previous and current values
+    cat << EOF
+Previous vid values were:
+$PREV_VAL_0
+$PREV_VAL_1
+Current vid values are:
+$CUR_VAL_0
+$CUR_VAL_1
+EOF
+    return 0
+}
+
+#execute the function passing the variable to it.
+main $1
